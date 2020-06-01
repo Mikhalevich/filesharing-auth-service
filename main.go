@@ -62,7 +62,7 @@ func main() {
 
 	service.Init()
 
-	proto.RegisterAuthServiceHandler(&authService{})
+	proto.RegisterAuthServiceHandler(service.Server(), &authService{})
 
 	err = service.Run()
 	if err != nil {

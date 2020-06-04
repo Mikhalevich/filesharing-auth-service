@@ -2,17 +2,21 @@ package main
 
 import (
 	"context"
+	"errors"
 	"os"
 	"time"
 
+	"github.com/Mikhalevich/filesharing-auth-service/db"
 	"github.com/Mikhalevich/filesharing-auth-service/proto"
+	"github.com/Mikhalevich/filesharing-auth-service/token"
 	"github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/server"
 	"github.com/sirupsen/logrus"
 )
 
 type params struct {
-	ServiceName string
+	ServiceName        string
+	DBConnectionString string
 }
 
 func loadParams() (*params, error) {
@@ -20,6 +24,11 @@ func loadParams() (*params, error) {
 	p.ServiceName = os.Getenv("AS_SERVICE_NAME")
 	if p.ServiceName == "" {
 		p.ServiceName = "auth.service"
+	}
+
+	p.DBConnectionString = os.Getenv("AS_DB_CONNECTION_STRING")
+	if p.DBConnectionString == "" {
+		return nil, errors.New("databse connection string is missing, please specify AS_DB_CONNECTION_STRING environment variable")
 	}
 
 	return &p, nil
@@ -62,7 +71,14 @@ func main() {
 
 	service.Init()
 
-	proto.RegisterAuthServiceHandler(service.Server(), &authService{})
+	storage, err := db.NewPostgres(p.DBConnectionString)
+	if err != nil {
+		logger.Errorln(err)
+		return
+	}
+	defer storage.Close()
+
+	proto.RegisterAuthServiceHandler(service.Server(), NewAuthService(storage, token.NewTokenService(time.Hour*72)))
 
 	err = service.Run()
 	if err != nil {

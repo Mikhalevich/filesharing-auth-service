@@ -3,7 +3,6 @@ syntax = "proto3";
 option go_package = ".;proto";
 
 service AuthService {
-  rpc GetByToken(Token) returns (User) {}
   rpc Create(User) returns (Response) {}
   rpc Auth(User) returns (Token) {}
 }

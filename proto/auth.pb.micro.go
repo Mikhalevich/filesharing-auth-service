@@ -42,7 +42,6 @@ func NewAuthServiceEndpoints() []*api.Endpoint {
 // Client API for AuthService service
 
 type AuthService interface {
-	GetByToken(ctx context.Context, in *Token, opts ...client.CallOption) (*User, error)
 	Create(ctx context.Context, in *User, opts ...client.CallOption) (*Response, error)
 	Auth(ctx context.Context, in *User, opts ...client.CallOption) (*Token, error)
 }
@@ -57,16 +56,6 @@ func NewAuthService(name string, c client.Client) AuthService {
 		c:    c,
 		name: name,
 	}
-}
-
-func (c *authService) GetByToken(ctx context.Context, in *Token, opts ...client.CallOption) (*User, error) {
-	req := c.c.NewRequest(c.name, "AuthService.GetByToken", in)
-	out := new(User)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *authService) Create(ctx context.Context, in *User, opts ...client.CallOption) (*Response, error) {
@@ -92,14 +81,12 @@ func (c *authService) Auth(ctx context.Context, in *User, opts ...client.CallOpt
 // Server API for AuthService service
 
 type AuthServiceHandler interface {
-	GetByToken(context.Context, *Token, *User) error
 	Create(context.Context, *User, *Response) error
 	Auth(context.Context, *User, *Token) error
 }
 
 func RegisterAuthServiceHandler(s server.Server, hdlr AuthServiceHandler, opts ...server.HandlerOption) error {
 	type authService interface {
-		GetByToken(ctx context.Context, in *Token, out *User) error
 		Create(ctx context.Context, in *User, out *Response) error
 		Auth(ctx context.Context, in *User, out *Token) error
 	}
@@ -112,10 +99,6 @@ func RegisterAuthServiceHandler(s server.Server, hdlr AuthServiceHandler, opts .
 
 type authServiceHandler struct {
 	AuthServiceHandler
-}
-
-func (h *authServiceHandler) GetByToken(ctx context.Context, in *Token, out *User) error {
-	return h.AuthServiceHandler.GetByToken(ctx, in, out)
 }
 
 func (h *authServiceHandler) Create(ctx context.Context, in *User, out *Response) error {

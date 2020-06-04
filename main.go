@@ -71,7 +71,16 @@ func main() {
 
 	service.Init()
 
-	storage, err := db.NewPostgres(p.DBConnectionString)
+	var storage *db.Postgres
+	for i := 0; i < 3; i++ {
+		storage, err = db.NewPostgres(p.DBConnectionString)
+		if err == nil {
+			break
+		}
+
+		logger.Infof("attemp connect to database: %d  error: %v", i, err)
+	}
+
 	if err != nil {
 		logger.Errorln(err)
 		return

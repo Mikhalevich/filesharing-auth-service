@@ -43,7 +43,7 @@ func NewAuthServiceEndpoints() []*api.Endpoint {
 
 type AuthService interface {
 	Create(ctx context.Context, in *User, opts ...client.CallOption) (*Response, error)
-	Auth(ctx context.Context, in *User, opts ...client.CallOption) (*Token, error)
+	Auth(ctx context.Context, in *User, opts ...client.CallOption) (*Response, error)
 }
 
 type authService struct {
@@ -68,9 +68,9 @@ func (c *authService) Create(ctx context.Context, in *User, opts ...client.CallO
 	return out, nil
 }
 
-func (c *authService) Auth(ctx context.Context, in *User, opts ...client.CallOption) (*Token, error) {
+func (c *authService) Auth(ctx context.Context, in *User, opts ...client.CallOption) (*Response, error) {
 	req := c.c.NewRequest(c.name, "AuthService.Auth", in)
-	out := new(Token)
+	out := new(Response)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -82,13 +82,13 @@ func (c *authService) Auth(ctx context.Context, in *User, opts ...client.CallOpt
 
 type AuthServiceHandler interface {
 	Create(context.Context, *User, *Response) error
-	Auth(context.Context, *User, *Token) error
+	Auth(context.Context, *User, *Response) error
 }
 
 func RegisterAuthServiceHandler(s server.Server, hdlr AuthServiceHandler, opts ...server.HandlerOption) error {
 	type authService interface {
 		Create(ctx context.Context, in *User, out *Response) error
-		Auth(ctx context.Context, in *User, out *Token) error
+		Auth(ctx context.Context, in *User, out *Response) error
 	}
 	type AuthService struct {
 		authService
@@ -105,6 +105,6 @@ func (h *authServiceHandler) Create(ctx context.Context, in *User, out *Response
 	return h.AuthServiceHandler.Create(ctx, in, out)
 }
 
-func (h *authServiceHandler) Auth(ctx context.Context, in *User, out *Token) error {
+func (h *authServiceHandler) Auth(ctx context.Context, in *User, out *Response) error {
 	return h.AuthServiceHandler.Auth(ctx, in, out)
 }

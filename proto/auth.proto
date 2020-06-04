@@ -4,21 +4,18 @@ option go_package = ".;proto";
 
 service AuthService {
   rpc Create(User) returns (Response) {}
-  rpc Auth(User) returns (Token) {}
+  rpc Auth(User) returns (Response) {}
 }
 
 enum Status {
   Ok = 0;
   AlreadyExist = 1;
+  NotExist = 2;
 }
 
 message Response {
     Status status = 1;
-}
-
-message Token {
-    string token = 1;
-    bool valid = 2;
+    string token = 2;
 }
 
 message User {

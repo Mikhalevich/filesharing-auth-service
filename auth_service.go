@@ -53,11 +53,20 @@ func (as *AuthService) Create(ctx context.Context, req *proto.User, rsp *proto.R
 		return fmt.Errorf("[Create] creating user error: %w", err)
 	}
 
+	token, err := as.tokenSrv.Encode(token.User{
+		Name: req.GetName(),
+	})
+
+	if err != nil {
+		return fmt.Errorf("[Craate] unable to encode token: %w", err)
+	}
+
 	rsp.Status = proto.Status_Ok
+	rsp.Token = token
 	return nil
 }
 
-func (as *AuthService) Auth(ctx context.Context, req *proto.User, rsp *proto.Token) error {
+func (as *AuthService) Auth(ctx context.Context, req *proto.User, rsp *proto.Response) error {
 	user, err := as.repo.GetByName(req.GetName())
 	if err != nil {
 		return fmt.Errorf("[Auth] get user error: %w", err)
@@ -76,7 +85,7 @@ func (as *AuthService) Auth(ctx context.Context, req *proto.User, rsp *proto.Tok
 		return fmt.Errorf("[Auth] unable to encode token: %w", err)
 	}
 
+	rsp.Status = proto.Status_Ok
 	rsp.Token = token
-	rsp.Valid = true
 	return nil
 }

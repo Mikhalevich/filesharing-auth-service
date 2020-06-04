@@ -16,17 +16,16 @@ type storager interface {
 	Create(u *db.User) error
 }
 
-type tokener interface {
-	Decode(token string) (*token.CustomClaims, error)
+type tokenEncoder interface {
 	Encode(user token.User) (string, error)
 }
 
 type AuthService struct {
 	repo     storager
-	tokenSrv tokener
+	tokenSrv tokenEncoder
 }
 
-func NewAuthService(s storager, tsrv tokener) *AuthService {
+func NewAuthService(s storager, tsrv tokenEncoder) *AuthService {
 	return &AuthService{
 		repo:     s,
 		tokenSrv: tsrv,

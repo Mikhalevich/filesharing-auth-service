@@ -31,7 +31,7 @@ func NewTokenService(ep time.Duration) *TokenService {
 }
 
 // Decode a token string into a custom claims object
-func (ts *TokenService) Decode(tokenString string) (*CustomClaims, error) {
+func Decode(tokenString string) (*CustomClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return test_key, nil
 	})

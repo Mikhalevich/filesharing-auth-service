@@ -6,6 +6,7 @@ require (
 	github.com/Mikhalevich/goauth v0.0.0-20191116123314-5ec373094114
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/golang/protobuf v1.4.2
+	github.com/lib/pq v1.3.0
 	github.com/micro/go-micro/v2 v2.8.0
 	github.com/micro/micro/v2 v2.8.1-0.20200531222451-87f733d38ee7 // indirect
 	github.com/sirupsen/logrus v1.4.2

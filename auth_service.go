@@ -16,19 +16,15 @@ type storager interface {
 	Create(u *db.User) error
 }
 
-type tokenEncoder interface {
-	Encode(user token.User) (string, error)
-}
-
 type AuthService struct {
-	repo     storager
-	tokenSrv tokenEncoder
+	repo    storager
+	encoder token.Encoder
 }
 
-func NewAuthService(s storager, tsrv tokenEncoder) *AuthService {
+func NewAuthService(s storager, te token.Encoder) *AuthService {
 	return &AuthService{
-		repo:     s,
-		tokenSrv: tsrv,
+		repo:    s,
+		encoder: te,
 	}
 }
 
@@ -52,7 +48,7 @@ func (as *AuthService) Create(ctx context.Context, req *proto.User, rsp *proto.R
 		return fmt.Errorf("[Create] creating user error: %w", err)
 	}
 
-	token, err := as.tokenSrv.Encode(token.User{
+	token, err := as.encoder.Encode(token.User{
 		Name: req.GetName(),
 	})
 
@@ -76,7 +72,7 @@ func (as *AuthService) Auth(ctx context.Context, req *proto.User, rsp *proto.Res
 		return fmt.Errorf("[Auth] password not match: %w", err)
 	}
 
-	token, err := as.tokenSrv.Encode(token.User{
+	token, err := as.encoder.Encode(token.User{
 		Name: user.Name,
 	})
 

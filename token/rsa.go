@@ -1,0 +1,94 @@
+package token
+
+import (
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
+	"errors"
+	"fmt"
+	"time"
+
+	"github.com/dgrijalva/jwt-go"
+)
+
+type RSADecoder struct {
+	key *rsa.PublicKey
+}
+
+func NewRSADecoder(pubPEMData []byte) (*RSADecoder, error) {
+	block, _ := pem.Decode(pubPEMData)
+	if block == nil || block.Type != "RSA PUBLIC KEY" {
+		return nil, errors.New("failed to decode PEM block containing rsa public key")
+	}
+
+	pub, err := x509.ParsePKCS1PublicKey(block.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse public key error: %w", err)
+	}
+
+	return &RSADecoder{
+		key: pub,
+	}, nil
+}
+
+func (rd *RSADecoder) Decode(tokenString string) (*CustomClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+		return rd.key, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !token.Valid {
+		return nil, errors.New("invalid token")
+	}
+
+	claims, ok := token.Claims.(*CustomClaims)
+	if !ok {
+		return nil, errors.New("invalid token: unable to parse custom claims")
+	}
+
+	return claims, nil
+}
+
+type RSAEncoder struct {
+	key              *rsa.PrivateKey
+	expirationPeriod time.Duration
+}
+
+func NewRSAEncoder(priPEMData []byte, ep time.Duration) (*RSAEncoder, error) {
+	block, _ := pem.Decode(priPEMData)
+	if block == nil || block.Type != "RSA PRIVATE KEY" {
+		return nil, errors.New("failed to decode PEM block containing rsa private key")
+	}
+
+	pri, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse private key error: %w", err)
+	}
+
+	return &RSAEncoder{
+		key: pri,
+	}, nil
+}
+
+// Encode a user object into a JWT string
+func (re *RSAEncoder) Encode(user User) (string, error) {
+	expirationTime := time.Now().Add(re.expirationPeriod).Unix()
+
+	claims := CustomClaims{
+		user,
+		jwt.StandardClaims{
+			ExpiresAt: expirationTime,
+			Issuer:    "filesharing.auth.service",
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+
+	return token.SignedString(re.key)
+}

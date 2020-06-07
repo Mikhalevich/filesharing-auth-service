@@ -1,70 +1,35 @@
 package token
 
 import (
-	"errors"
-	"time"
+	"io/ioutil"
+	"os"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
-var (
-	test_key = []byte("testsecret")
-)
-
 type User struct {
-	Name string
+	Name string `json:"name"`
 }
 
 type CustomClaims struct {
-	User User
+	User User `json:"user"`
 	jwt.StandardClaims
 }
 
-type TokenService struct {
-	expirationPeriod time.Duration
+type Decoder interface {
+	Decode(tokenString string) (*CustomClaims, error)
 }
 
-func NewTokenService(ep time.Duration) *TokenService {
-	return &TokenService{
-		expirationPeriod: ep,
-	}
+type Encoder interface {
+	Encode(user User) (string, error)
 }
 
-// Decode a token string into a custom claims object
-func Decode(tokenString string) (*CustomClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return test_key, nil
-	})
-
+func LoadCertFromFile(fileName string) ([]byte, error) {
+	f, err := os.Open(fileName)
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
 
-	if !token.Valid {
-		return nil, errors.New("invalid token")
-	}
-
-	claims, ok := token.Claims.(*CustomClaims)
-	if !ok {
-		return nil, errors.New("invalid token: unable to parse custom claims")
-	}
-
-	return claims, nil
-}
-
-// Encode a user object into a JWT string
-func (ts *TokenService) Encode(user User) (string, error) {
-	expireToken := time.Now().Add(ts.expirationPeriod).Unix()
-
-	claims := CustomClaims{
-		user,
-		jwt.StandardClaims{
-			ExpiresAt: expireToken,
-			Issuer:    "filesharing.auth.service",
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	return token.SignedString(test_key)
+	return ioutil.ReadAll(f)
 }

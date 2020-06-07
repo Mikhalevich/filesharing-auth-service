@@ -11,7 +11,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags="-w -s" -o /go/bin/filesharing-auth-service
 
 FROM scratch
-COPY --from=builder /go/bin/filesharing-auth-service /go/bin/filesharing-auth-service
+COPY --from=builder /go/bin/filesharing-auth-service /app/filesharing-auth-service
 
-WORKDIR /go/bin
+WORKDIR /app/
 ENTRYPOINT ["./filesharing-auth-service"]

@@ -82,7 +82,8 @@ func NewRSAEncoder(priPEMData []byte, ep time.Duration) (*RSAEncoder, error) {
 	}
 
 	return &RSAEncoder{
-		key: pri,
+		key:              pri,
+		expirationPeriod: ep,
 	}, nil
 }
 

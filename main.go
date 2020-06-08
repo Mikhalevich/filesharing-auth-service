@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/Mikhalevich/filesharing-auth-service/db"
@@ -16,9 +17,10 @@ import (
 )
 
 type params struct {
-	ServiceName        string
-	DBConnectionString string
-	PrivateCert        string
+	ServiceName            string
+	DBConnectionString     string
+	PrivateCert            string
+	TokenExpirePeriodInSec int
 }
 
 func loadParams() (*params, error) {
@@ -36,6 +38,16 @@ func loadParams() (*params, error) {
 	p.PrivateCert = os.Getenv("AS_PRIVATE_CERT")
 	if p.PrivateCert == "" {
 		return nil, errors.New("private certificate is missing, please specify AS_PRIVATE_CERT environment variable")
+	}
+
+	p.TokenExpirePeriodInSec = 60 * 60 * 24
+	periodString := os.Getenv("AS_TOKEN_EXPIRE_PERIOD_SEC")
+	if periodString != "" {
+		period, err := strconv.Atoi(periodString)
+		if err != nil {
+			return nil, fmt.Errorf("unable convert expiration token to integer value %s, error: %w", periodString, err)
+		}
+		p.TokenExpirePeriodInSec = period
 	}
 
 	return &p, nil
@@ -85,11 +97,12 @@ func main() {
 			break
 		}
 
-		logger.Infof("attemp connect to database: %d  error: %v", i, err)
+		time.Sleep(time.Second * 1)
+		logger.Infof("try to connect to database: %d  error: %v", i, err)
 	}
 
 	if err != nil {
-		logger.Errorln(fmt.Errorf("unable to codded to database: %w", err))
+		logger.Errorln(fmt.Errorf("unable to connect to database: %w", err))
 		return
 	}
 	defer storage.Close()
@@ -100,7 +113,7 @@ func main() {
 		return
 	}
 
-	rsaEncoder, err := token.NewRSAEncoder(privateKey, time.Hour*72)
+	rsaEncoder, err := token.NewRSAEncoder(privateKey, time.Duration(p.TokenExpirePeriodInSec)*time.Second)
 	proto.RegisterAuthServiceHandler(service.Server(), NewAuthService(storage, rsaEncoder))
 
 	err = service.Run()

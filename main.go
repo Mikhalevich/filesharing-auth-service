@@ -81,7 +81,7 @@ func main() {
 		return
 	}
 
-	logger.Infof("running auth service with params: service_name = \"%s\"", p.ServiceName)
+	logger.Infof("running auth service with params: %v\n", p)
 
 	service := micro.NewService(
 		micro.Name(p.ServiceName),
@@ -98,7 +98,7 @@ func main() {
 		}
 
 		time.Sleep(time.Second * 1)
-		logger.Infof("try to connect to database: %d  error: %v", i, err)
+		logger.Infof("try to connect to database: %d  error: %v\n", i, err)
 	}
 
 	if err != nil {

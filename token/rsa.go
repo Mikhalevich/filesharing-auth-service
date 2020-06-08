@@ -17,13 +17,18 @@ type RSADecoder struct {
 
 func NewRSADecoder(pubPEMData []byte) (*RSADecoder, error) {
 	block, _ := pem.Decode(pubPEMData)
-	if block == nil || block.Type != "RSA PUBLIC KEY" {
+	if block == nil {
 		return nil, errors.New("failed to decode PEM block containing rsa public key")
 	}
 
-	pub, err := x509.ParsePKCS1PublicKey(block.Bytes)
+	key, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse public key error: %w", err)
+	}
+
+	pub, ok := key.(*rsa.PublicKey)
+	if !ok {
+		return nil, fmt.Errorf("not a public key: %v", key)
 	}
 
 	return &RSADecoder{
@@ -62,13 +67,18 @@ type RSAEncoder struct {
 
 func NewRSAEncoder(priPEMData []byte, ep time.Duration) (*RSAEncoder, error) {
 	block, _ := pem.Decode(priPEMData)
-	if block == nil || block.Type != "RSA PRIVATE KEY" {
+	if block == nil {
 		return nil, errors.New("failed to decode PEM block containing rsa private key")
 	}
 
-	pri, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	key, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse private key error: %w", err)
+	}
+
+	pri, ok := key.(*rsa.PrivateKey)
+	if !ok {
+		return nil, fmt.Errorf("not a rsa private key: %v", key)
 	}
 
 	return &RSAEncoder{

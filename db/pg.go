@@ -2,8 +2,9 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 )
 
 type Postgres struct {
@@ -73,7 +74,7 @@ func (p *Postgres) userByQuery(query string, args ...interface{}) (*User, error)
 	user := User{}
 	err := row.Scan(&user.ID, &user.Name, &user.Pwd)
 
-	if err == sql.ErrNoRows {
+	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotExist
 	} else if err != nil {
 		return nil, err
@@ -107,11 +108,24 @@ func (p *Postgres) AddEmail(userID int64, e Email) error {
 	return p.addEmailTx(userID, e, p.db)
 }
 
+func isUniqueViolationError(err error) bool {
+	var pgErr *pq.Error
+	if errors.As(err, &pgErr) {
+		if pgErr.Code == "23505" {
+			return true
+		}
+	}
+	return false
+}
+
 func (p *Postgres) Create(u *User) error {
 	return WithTransaction(p.db, func(tx Transaction) error {
 		var id int64
 		err := tx.QueryRow("INSERT INTO Users(name, password) VALUES($1, $2) RETURNING id", u.Name, u.Pwd).Scan(&id)
 		if err != nil {
+			if isUniqueViolationError(err) {
+				return ErrAlreadyExist
+			}
 			return err
 		}
 

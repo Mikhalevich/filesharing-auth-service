@@ -11,6 +11,7 @@ enum Status {
   Ok = 0;
   AlreadyExist = 1;
   NotExist = 2;
+  PwdNotMatch = 3;
 }
 
 message Response {

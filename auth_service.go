@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/Mikhalevich/filesharing-auth-service/db"
@@ -44,7 +45,10 @@ func (as *AuthService) Create(ctx context.Context, req *proto.User, rsp *proto.R
 
 	req.Password = string(hashedPass)
 	err = as.repo.Create(unmarshalUser(req))
-	if err != nil {
+	if errors.Is(err, db.ErrAlreadyExist) {
+		rsp.Status = proto.Status_AlreadyExist
+		return nil
+	} else if err != nil {
 		return fmt.Errorf("[Create] creating user error: %w", err)
 	}
 
@@ -53,7 +57,7 @@ func (as *AuthService) Create(ctx context.Context, req *proto.User, rsp *proto.R
 	})
 
 	if err != nil {
-		return fmt.Errorf("[Craate] unable to encode token: %w", err)
+		return fmt.Errorf("[Create] unable to encode token: %w", err)
 	}
 
 	rsp.Status = proto.Status_Ok
@@ -63,13 +67,17 @@ func (as *AuthService) Create(ctx context.Context, req *proto.User, rsp *proto.R
 
 func (as *AuthService) Auth(ctx context.Context, req *proto.User, rsp *proto.Response) error {
 	user, err := as.repo.GetByName(req.GetName())
-	if err != nil {
+	if errors.Is(err, db.ErrNotExist) {
+		rsp.Status = proto.Status_NotExist
+		return nil
+	} else if err != nil {
 		return fmt.Errorf("[Auth] get user error: %w", err)
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Pwd), []byte(req.Password))
 	if err != nil {
-		return fmt.Errorf("[Auth] password not match: %w", err)
+		rsp.Status = proto.Status_PwdNotMatch
+		return nil
 	}
 
 	token, err := as.encoder.Encode(token.User{

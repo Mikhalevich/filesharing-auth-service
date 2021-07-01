@@ -19,7 +19,6 @@ import (
 type params struct {
 	ServiceName            string
 	DBConnectionString     string
-	PrivateCert            string
 	TokenExpirePeriodInSec int
 }
 
@@ -33,11 +32,6 @@ func loadParams() (*params, error) {
 	p.DBConnectionString = os.Getenv("AS_DB_CONNECTION_STRING")
 	if p.DBConnectionString == "" {
 		return nil, errors.New("databse connection string is missing, please specify AS_DB_CONNECTION_STRING environment variable")
-	}
-
-	p.PrivateCert = os.Getenv("AS_PRIVATE_CERT")
-	if p.PrivateCert == "" {
-		return nil, errors.New("private certificate is missing, please specify AS_PRIVATE_CERT environment variable")
 	}
 
 	p.TokenExpirePeriodInSec = 60 * 60 * 24
@@ -107,13 +101,7 @@ func main() {
 	}
 	defer storage.Close()
 
-	privateKey, err := token.LoadCertFromFile(p.PrivateCert)
-	if err != nil {
-		logger.Errorln(fmt.Errorf("unable to load private certificate: %w", err))
-		return
-	}
-
-	rsaEncoder, err := token.NewRSAEncoder(privateKey, time.Duration(p.TokenExpirePeriodInSec)*time.Second)
+	rsaEncoder, err := token.NewRSAEncoder(time.Duration(p.TokenExpirePeriodInSec) * time.Second)
 	proto.RegisterAuthServiceHandler(service.Server(), NewAuthService(storage, rsaEncoder))
 
 	err = service.Run()

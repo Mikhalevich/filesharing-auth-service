@@ -3,6 +3,7 @@ package token
 import (
 	"crypto/rsa"
 	"crypto/x509"
+	_ "embed"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -11,11 +12,23 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
+var (
+	//go:embed cert/public_key.pem
+	publicPEMData []byte
+
+	//go:embed cert/private_key.pem
+	privatePEMData []byte
+)
+
 type RSADecoder struct {
 	key *rsa.PublicKey
 }
 
-func NewRSADecoder(pubPEMData []byte) (*RSADecoder, error) {
+func NewRSADecoder() (*RSADecoder, error) {
+	return NewRSADecoderWithPublicKey(publicPEMData)
+}
+
+func NewRSADecoderWithPublicKey(pubPEMData []byte) (*RSADecoder, error) {
 	block, _ := pem.Decode(pubPEMData)
 	if block == nil {
 		return nil, errors.New("failed to decode PEM block containing rsa public key")
@@ -39,7 +52,7 @@ func NewRSADecoder(pubPEMData []byte) (*RSADecoder, error) {
 func (rd *RSADecoder) Decode(tokenString string) (*CustomClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return rd.key, nil
 	})
@@ -65,7 +78,11 @@ type RSAEncoder struct {
 	expirationPeriod time.Duration
 }
 
-func NewRSAEncoder(priPEMData []byte, ep time.Duration) (*RSAEncoder, error) {
+func NewRSAEncoder(ep time.Duration) (*RSAEncoder, error) {
+	return NewRSAEncoderWithPrivateKey(privatePEMData, ep)
+}
+
+func NewRSAEncoderWithPrivateKey(priPEMData []byte, ep time.Duration) (*RSAEncoder, error) {
 	block, _ := pem.Decode(priPEMData)
 	if block == nil {
 		return nil, errors.New("failed to decode PEM block containing rsa private key")

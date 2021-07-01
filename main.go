@@ -102,6 +102,11 @@ func main() {
 	defer storage.Close()
 
 	rsaEncoder, err := token.NewRSAEncoder(time.Duration(p.TokenExpirePeriodInSec) * time.Second)
+	if err != nil {
+		logger.Errorln(fmt.Errorf("unable to create auth encoded: %w", err))
+		return
+	}
+
 	proto.RegisterAuthServiceHandler(service.Server(), NewAuthService(storage, rsaEncoder))
 
 	err = service.Run()

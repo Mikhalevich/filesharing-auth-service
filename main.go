@@ -11,8 +11,8 @@ import (
 	"github.com/Mikhalevich/filesharing-auth-service/db"
 	"github.com/Mikhalevich/filesharing-auth-service/proto"
 	"github.com/Mikhalevich/filesharing-auth-service/token"
-	"github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/server"
+	"github.com/micro/micro/v3/service"
+	"github.com/micro/micro/v3/service/server"
 	"github.com/sirupsen/logrus"
 )
 
@@ -77,12 +77,12 @@ func main() {
 
 	logger.Infof("running auth service with params: %v\n", p)
 
-	service := micro.NewService(
-		micro.Name(p.ServiceName),
-		micro.WrapHandler(makeLoggerWrapper(logger)),
+	srv := service.New(
+		service.Name(p.ServiceName),
+		service.WrapHandler(makeLoggerWrapper(logger)),
 	)
 
-	service.Init()
+	srv.Init()
 
 	var storage *db.Postgres
 	for i := 0; i < 3; i++ {
@@ -107,9 +107,9 @@ func main() {
 		return
 	}
 
-	proto.RegisterAuthServiceHandler(service.Server(), NewAuthService(storage, rsaEncoder))
+	proto.RegisterAuthServiceHandler(srv.Server(), NewAuthService(storage, rsaEncoder))
 
-	err = service.Run()
+	err = srv.Run()
 	if err != nil {
 		logger.Errorln(err)
 		return

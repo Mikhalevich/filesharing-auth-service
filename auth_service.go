@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/Mikhalevich/filesharing-auth-service/db"
-	"github.com/Mikhalevich/filesharing-auth-service/proto"
 	"github.com/Mikhalevich/filesharing-auth-service/token"
+	"github.com/Mikhalevich/filesharing/proto/auth"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -29,7 +29,7 @@ func NewAuthService(s storager, te token.Encoder) *AuthService {
 	}
 }
 
-func unmarshalUser(u *proto.User) *db.User {
+func unmarshalUser(u *auth.User) *db.User {
 	return &db.User{
 		ID:   u.GetId(),
 		Name: u.GetName(),
@@ -37,7 +37,7 @@ func unmarshalUser(u *proto.User) *db.User {
 	}
 }
 
-func (as *AuthService) Create(ctx context.Context, req *proto.User, rsp *proto.Response) error {
+func (as *AuthService) Create(ctx context.Context, req *auth.User, rsp *auth.Response) error {
 	hashedPass, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return fmt.Errorf("[Create] hashing password error: %w", err)
@@ -46,7 +46,7 @@ func (as *AuthService) Create(ctx context.Context, req *proto.User, rsp *proto.R
 	req.Password = string(hashedPass)
 	err = as.repo.Create(unmarshalUser(req))
 	if errors.Is(err, db.ErrAlreadyExist) {
-		rsp.Status = proto.Status_AlreadyExist
+		rsp.Status = auth.Status_AlreadyExist
 		return nil
 	} else if err != nil {
 		return fmt.Errorf("[Create] creating user error: %w", err)
@@ -60,15 +60,15 @@ func (as *AuthService) Create(ctx context.Context, req *proto.User, rsp *proto.R
 		return fmt.Errorf("[Create] unable to encode token: %w", err)
 	}
 
-	rsp.Status = proto.Status_Ok
+	rsp.Status = auth.Status_Ok
 	rsp.Token = token
 	return nil
 }
 
-func (as *AuthService) Auth(ctx context.Context, req *proto.User, rsp *proto.Response) error {
+func (as *AuthService) Auth(ctx context.Context, req *auth.User, rsp *auth.Response) error {
 	user, err := as.repo.GetByName(req.GetName())
 	if errors.Is(err, db.ErrNotExist) {
-		rsp.Status = proto.Status_NotExist
+		rsp.Status = auth.Status_NotExist
 		return nil
 	} else if err != nil {
 		return fmt.Errorf("[Auth] get user error: %w", err)
@@ -76,7 +76,7 @@ func (as *AuthService) Auth(ctx context.Context, req *proto.User, rsp *proto.Res
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Pwd), []byte(req.Password))
 	if err != nil {
-		rsp.Status = proto.Status_PwdNotMatch
+		rsp.Status = auth.Status_PwdNotMatch
 		return nil
 	}
 
@@ -88,7 +88,7 @@ func (as *AuthService) Auth(ctx context.Context, req *proto.User, rsp *proto.Res
 		return fmt.Errorf("[Auth] unable to encode token: %w", err)
 	}
 
-	rsp.Status = proto.Status_Ok
+	rsp.Status = auth.Status_Ok
 	rsp.Token = token
 	return nil
 }

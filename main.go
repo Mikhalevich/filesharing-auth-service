@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/Mikhalevich/filesharing-auth-service/db"
-	"github.com/Mikhalevich/filesharing-auth-service/proto"
 	"github.com/Mikhalevich/filesharing-auth-service/token"
+	"github.com/Mikhalevich/filesharing/proto/auth"
 	"github.com/asim/go-micro/v3"
 	"github.com/asim/go-micro/v3/server"
 	"github.com/sirupsen/logrus"
@@ -107,7 +107,7 @@ func main() {
 		return
 	}
 
-	proto.RegisterAuthServiceHandler(srv.Server(), NewAuthService(storage, rsaEncoder))
+	auth.RegisterAuthServiceHandler(srv.Server(), NewAuthService(storage, rsaEncoder))
 
 	err = srv.Run()
 	if err != nil {

@@ -11,8 +11,8 @@ import (
 	"github.com/Mikhalevich/filesharing-auth-service/db"
 	"github.com/Mikhalevich/filesharing-auth-service/proto"
 	"github.com/Mikhalevich/filesharing-auth-service/token"
-	"github.com/micro/micro/v3/service"
-	"github.com/micro/micro/v3/service/server"
+	"github.com/asim/go-micro/v3"
+	"github.com/asim/go-micro/v3/server"
 	"github.com/sirupsen/logrus"
 )
 
@@ -77,9 +77,9 @@ func main() {
 
 	logger.Infof("running auth service with params: %v\n", p)
 
-	srv := service.New(
-		service.Name(p.ServiceName),
-		service.WrapHandler(makeLoggerWrapper(logger)),
+	srv := micro.NewService(
+		micro.Name(p.ServiceName),
+		micro.WrapHandler(makeLoggerWrapper(logger)),
 	)
 
 	srv.Init()

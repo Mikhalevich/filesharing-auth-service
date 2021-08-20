@@ -3,7 +3,8 @@
 CREATE TABLE Users(
     id SERIAL PRIMARY KEY,
     name varchar(100) UNIQUE,
-    password varchar(100)
+    password varchar(100),
+    public boolean DEFAULT FALSE
 );
 
 CREATE TABLE Emails(

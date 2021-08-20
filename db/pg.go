@@ -53,7 +53,7 @@ func (p *Postgres) userByQuery(query string, args ...interface{}) (*User, error)
 	row := p.db.QueryRow(query, args...)
 
 	user := User{}
-	err := row.Scan(&user.ID, &user.Name, &user.Pwd)
+	err := row.Scan(&user.ID, &user.Name, &user.Pwd, &user.Public)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrNotExist

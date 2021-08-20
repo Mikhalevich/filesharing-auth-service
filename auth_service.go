@@ -44,7 +44,8 @@ func (as *AuthService) Create(ctx context.Context, req *auth.User, rsp *auth.Res
 	}
 
 	req.Password = string(hashedPass)
-	err = as.repo.Create(unmarshalUser(req))
+	user := unmarshalUser(req)
+	err = as.repo.Create(user)
 	if errors.Is(err, db.ErrAlreadyExist) {
 		rsp.Status = auth.Status_AlreadyExist
 		return nil
@@ -53,7 +54,9 @@ func (as *AuthService) Create(ctx context.Context, req *auth.User, rsp *auth.Res
 	}
 
 	token, err := as.encoder.Encode(token.User{
-		Name: req.GetName(),
+		ID:     user.ID,
+		Name:   user.Name,
+		Public: user.Public,
 	})
 
 	if err != nil {
@@ -81,7 +84,9 @@ func (as *AuthService) Auth(ctx context.Context, req *auth.User, rsp *auth.Respo
 	}
 
 	token, err := as.encoder.Encode(token.User{
-		Name: user.Name,
+		ID:     user.ID,
+		Name:   user.Name,
+		Public: user.Public,
 	})
 
 	if err != nil {

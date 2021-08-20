@@ -17,28 +17,9 @@ func NewPostgres(connectionStr string) (*Postgres, error) {
 		return nil, err
 	}
 
-	err = createSchema(pgDB)
-	if err != nil {
-		return nil, err
-	}
-
 	return &Postgres{
 		db: pgDB,
 	}, nil
-}
-
-func createSchema(db *sql.DB) error {
-	_, err := db.Exec("CREATE TABLE IF NOT EXISTS Users(id SERIAL PRIMARY KEY, name varchar(100) UNIQUE, password varchar(100));")
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS Emails(id SERIAL PRIMARY KEY, userID integer REFERENCES Users(id) ON DELETE CASCADE ON UPDATE CASCADE, email varchar(100) UNIQUE, prim boolean, verified boolean, verification_code varchar(50));")
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (p *Postgres) Close() error {

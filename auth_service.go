@@ -8,6 +8,7 @@ import (
 	"github.com/Mikhalevich/filesharing-auth-service/db"
 	"github.com/Mikhalevich/filesharing-auth-service/token"
 	"github.com/Mikhalevich/filesharing/proto/auth"
+	"github.com/Mikhalevich/filesharing/proto/types"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -29,7 +30,7 @@ func NewAuthService(s storager, te token.Encoder) *AuthService {
 	}
 }
 
-func unmarshalUser(u *auth.User) *db.User {
+func unmarshalUser(u *types.User) *db.User {
 	return &db.User{
 		ID:   u.GetId(),
 		Name: u.GetName(),
@@ -37,14 +38,18 @@ func unmarshalUser(u *auth.User) *db.User {
 	}
 }
 
-func (as *AuthService) Create(ctx context.Context, req *auth.User, rsp *auth.Response) error {
-	hashedPass, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+func (as *AuthService) Create(ctx context.Context, req *auth.CreateUserRequest, rsp *auth.CreateUserResponse) error {
+	hashedPass, err := bcrypt.GenerateFromPassword([]byte(req.GetUser().GetPassword()), bcrypt.DefaultCost)
 	if err != nil {
 		return fmt.Errorf("[Create] hashing password error: %w", err)
 	}
 
-	req.Password = string(hashedPass)
-	user := unmarshalUser(req)
+	ru := req.GetUser()
+	if ru == nil {
+		return errors.New("[Create] invalid user")
+	}
+	ru.Password = string(hashedPass)
+	user := unmarshalUser(ru)
 	err = as.repo.Create(user)
 	if errors.Is(err, db.ErrAlreadyExist) {
 		rsp.Status = auth.Status_AlreadyExist
@@ -64,12 +69,14 @@ func (as *AuthService) Create(ctx context.Context, req *auth.User, rsp *auth.Res
 	}
 
 	rsp.Status = auth.Status_Ok
-	rsp.Token = token
+	rsp.Token = &types.Token{
+		Value: token,
+	}
 	return nil
 }
 
-func (as *AuthService) Auth(ctx context.Context, req *auth.User, rsp *auth.Response) error {
-	user, err := as.repo.GetByName(req.GetName())
+func (as *AuthService) Auth(ctx context.Context, req *auth.AuthUserRequest, rsp *auth.AuthUserResponse) error {
+	user, err := as.repo.GetByName(req.GetUser().GetName())
 	if errors.Is(err, db.ErrNotExist) {
 		rsp.Status = auth.Status_NotExist
 		return nil
@@ -77,7 +84,7 @@ func (as *AuthService) Auth(ctx context.Context, req *auth.User, rsp *auth.Respo
 		return fmt.Errorf("[Auth] get user error: %w", err)
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Pwd), []byte(req.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Pwd), []byte(req.GetUser().GetPassword()))
 	if err != nil {
 		rsp.Status = auth.Status_PwdNotMatch
 		return nil
@@ -94,6 +101,8 @@ func (as *AuthService) Auth(ctx context.Context, req *auth.User, rsp *auth.Respo
 	}
 
 	rsp.Status = auth.Status_Ok
-	rsp.Token = token
+	rsp.Token = &types.Token{
+		Value: token,
+	}
 	return nil
 }

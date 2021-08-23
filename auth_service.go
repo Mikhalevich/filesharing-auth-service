@@ -7,6 +7,7 @@ import (
 
 	"github.com/Mikhalevich/filesharing-auth-service/db"
 	"github.com/Mikhalevich/filesharing-auth-service/token"
+	"github.com/Mikhalevich/filesharing/httpcode"
 	"github.com/Mikhalevich/filesharing/proto/auth"
 	"github.com/Mikhalevich/filesharing/proto/types"
 	"golang.org/x/crypto/bcrypt"
@@ -16,6 +17,7 @@ type storager interface {
 	GetByName(name string) (*db.User, error)
 	GetByEmail(email string) (*db.User, error)
 	Create(u *db.User) error
+	GetPublicUsers() ([]*db.User, error)
 }
 
 type AuthService struct {
@@ -32,9 +34,19 @@ func NewAuthService(s storager, te token.Encoder) *AuthService {
 
 func unmarshalUser(u *types.User) *db.User {
 	return &db.User{
-		ID:   u.GetId(),
-		Name: u.GetName(),
-		Pwd:  u.GetPassword(),
+		ID:     u.GetId(),
+		Name:   u.GetName(),
+		Pwd:    u.GetPassword(),
+		Public: u.GetPublic(),
+	}
+}
+
+func marshalUser(u *db.User) *types.User {
+	return &types.User{
+		Id:       u.ID,
+		Name:     u.Name,
+		Password: u.Pwd,
+		Public:   u.Public,
 	}
 }
 
@@ -103,6 +115,18 @@ func (as *AuthService) Auth(ctx context.Context, req *auth.AuthUserRequest, rsp 
 	rsp.Status = auth.Status_Ok
 	rsp.Token = &types.Token{
 		Value: token,
+	}
+	return nil
+}
+
+func (as *AuthService) GetPublicUsers(ctx context.Context, req *auth.GetPublicUsersRequest, rsp *auth.GetPublicUsersResponse) error {
+	users, err := as.repo.GetPublicUsers()
+	if err != nil {
+		return httpcode.NewWrapInternalServerError(err, "unable to get public users")
+	}
+
+	for _, u := range users {
+		rsp.Users = append(rsp.Users, marshalUser(u))
 	}
 	return nil
 }

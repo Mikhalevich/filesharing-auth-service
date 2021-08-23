@@ -122,3 +122,24 @@ func (p *Postgres) Create(u *User) error {
 		return nil
 	})
 }
+
+func (p *Postgres) GetPublicUsers() ([]*User, error) {
+	rows, err := p.db.Query("SELECT * FROM Users WHERE public = TRUE")
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var users []*User
+	for rows.Next() {
+		user := User{}
+		if err := rows.Scan(&user.ID, &user.Name, &user.Pwd, &user.Public); err != nil {
+			return nil, err
+		}
+
+		users = append(users, &user)
+	}
+
+	return users, nil
+}

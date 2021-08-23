@@ -119,14 +119,30 @@ func (as *AuthService) Auth(ctx context.Context, req *auth.AuthUserRequest, rsp 
 	return nil
 }
 
-func (as *AuthService) GetPublicUsers(ctx context.Context, req *auth.GetPublicUsersRequest, rsp *auth.GetPublicUsersResponse) error {
-	users, err := as.repo.GetPublicUsers()
-	if err != nil {
-		return httpcode.NewWrapInternalServerError(err, "unable to get public users")
+func (as *AuthService) AuthPublicUser(ctx context.Context, req *auth.AuthPublicUserRequest, rsp *auth.AuthPublicUserResponse) error {
+	user, err := as.repo.GetByName(req.GetName())
+	if errors.Is(err, db.ErrNotExist) {
+		return httpcode.NewNotExistError("user not exist")
+	} else if err != nil {
+		return httpcode.NewWrapInternalServerError(err, "unable to get user")
 	}
 
-	for _, u := range users {
-		rsp.Users = append(rsp.Users, marshalUser(u))
+	if !user.Public {
+		return httpcode.NewBadRequest("user is not public")
+	}
+
+	token, err := as.encoder.Encode(token.User{
+		ID:     user.ID,
+		Name:   user.Name,
+		Public: user.Public,
+	})
+
+	if err != nil {
+		return httpcode.NewWrapInternalServerError(err, "unable to encode token")
+	}
+
+	rsp.Token = &types.Token{
+		Value: token,
 	}
 	return nil
 }

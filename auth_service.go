@@ -33,19 +33,21 @@ func NewAuthService(s storager, te token.Encoder) *AuthService {
 }
 
 func unmarshalUser(u *types.User) *db.User {
-	return &db.User{
+	user := db.User{
 		ID:     u.GetId(),
 		Name:   u.GetName(),
-		Pwd:    u.GetPassword(),
 		Public: u.GetPublic(),
 	}
+
+	user.Pwd.String = u.GetPassword()
+	return &user
 }
 
 func marshalUser(u *db.User) *types.User {
 	return &types.User{
 		Id:       u.ID,
 		Name:     u.Name,
-		Password: u.Pwd,
+		Password: u.Pwd.String,
 		Public:   u.Public,
 	}
 }
@@ -96,7 +98,7 @@ func (as *AuthService) Auth(ctx context.Context, req *auth.AuthUserRequest, rsp 
 		return fmt.Errorf("[Auth] get user error: %w", err)
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Pwd), []byte(req.GetUser().GetPassword()))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Pwd.String), []byte(req.GetUser().GetPassword()))
 	if err != nil {
 		rsp.Status = auth.Status_PwdNotMatch
 		return nil

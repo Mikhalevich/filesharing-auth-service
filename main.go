@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -11,9 +10,8 @@ import (
 	"github.com/Mikhalevich/filesharing-auth-service/db"
 	"github.com/Mikhalevich/filesharing-auth-service/token"
 	"github.com/Mikhalevich/filesharing/proto/auth"
+	"github.com/Mikhalevich/filesharing/service"
 	"github.com/asim/go-micro/v3"
-	"github.com/asim/go-micro/v3/server"
-	"github.com/sirupsen/logrus"
 )
 
 type params struct {
@@ -47,42 +45,16 @@ func loadParams() (*params, error) {
 	return &p, nil
 }
 
-func makeLoggerWrapper(logger *logrus.Logger) server.HandlerWrapper {
-	return func(fn server.HandlerFunc) server.HandlerFunc {
-		return func(ctx context.Context, req server.Request, rsp interface{}) error {
-			logger.Infof("processing %s", req.Method())
-			start := time.Now()
-			defer logger.Infof("end processing %s, time = %v", req.Method(), time.Now().Sub(start))
-			err := fn(ctx, req, rsp)
-			if err != nil {
-				logger.Errorln(err)
-			}
-			return err
-		}
-	}
-}
-
 func main() {
-	logger := logrus.New()
-	logger.SetOutput(os.Stdout)
-	logger.SetFormatter(&logrus.TextFormatter{
-		FullTimestamp: true,
-	})
-
 	p, err := loadParams()
 	if err != nil {
-		logger.Errorln(fmt.Errorf("unable to load params: %W", err))
+		fmt.Printf("unable to load params: %v", err)
 		return
 	}
 
-	logger.Infof("running auth service with params: %v\n", p)
+	srv := service.New(p.ServiceName)
 
-	srv := micro.NewService(
-		micro.Name(p.ServiceName),
-		micro.WrapHandler(makeLoggerWrapper(logger)),
-	)
-
-	srv.Init()
+	srv.Logger().Infof("running auth service with params: %v\n", p)
 
 	var storage *db.Postgres
 	for i := 0; i < 3; i++ {
@@ -92,26 +64,28 @@ func main() {
 		}
 
 		time.Sleep(time.Second * 1)
-		logger.Infof("try to connect to database: %d  error: %v\n", i, err)
+		srv.Logger().Infof("try to connect to database: %d  error: %v\n", i, err)
 	}
 
 	if err != nil {
-		logger.Errorln(fmt.Errorf("unable to connect to database: %w", err))
+		srv.Logger().Errorf("unable to connect to database: %v\n", err)
 		return
 	}
 	defer storage.Close()
 
-	rsaEncoder, err := token.NewRSAEncoder(time.Duration(p.TokenExpirePeriodInSec) * time.Second)
-	if err != nil {
-		logger.Errorln(fmt.Errorf("unable to create auth encoded: %w", err))
+	if err := srv.RegisterHandler(func(ms micro.Service, s service.Servicer) error {
+		rsaEncoder, err := token.NewRSAEncoder(time.Duration(p.TokenExpirePeriodInSec) * time.Second)
+		if err != nil {
+			return fmt.Errorf("unable to create auth encoded: %v", err)
+		}
+
+		if err := auth.RegisterAuthServiceHandler(ms.Server(), NewAuthService(storage, rsaEncoder)); err != nil {
+			return fmt.Errorf("unable register auth handler: %v", err)
+		}
+		return nil
+	}); err != nil {
 		return
 	}
 
-	auth.RegisterAuthServiceHandler(srv.Server(), NewAuthService(storage, rsaEncoder))
-
-	err = srv.Run()
-	if err != nil {
-		logger.Errorln(err)
-		return
-	}
+	srv.Run()
 }

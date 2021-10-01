@@ -11,6 +11,7 @@ import (
 	"github.com/Mikhalevich/filesharing-auth-service/token"
 	"github.com/Mikhalevich/filesharing/proto/auth"
 	"github.com/Mikhalevich/filesharing/service"
+	"github.com/Mikhalevich/repeater"
 	"github.com/asim/go-micro/v3"
 )
 
@@ -57,17 +58,15 @@ func main() {
 	srv.Logger().Infof("running auth service with params: %v\n", p)
 
 	var storage *db.Postgres
-	for i := 0; i < 3; i++ {
-		storage, err = db.NewPostgres(p.DBConnectionString)
-		if err == nil {
-			break
-		}
-
-		time.Sleep(time.Second * 1)
-		srv.Logger().Infof("try to connect to database: %d  error: %v\n", i, err)
-	}
-
-	if err != nil {
+	if err := repeater.Do(
+		func() error {
+			storage, err = db.NewPostgres(p.DBConnectionString)
+			return err
+		},
+		repeater.WithTimeout(time.Second*1),
+		repeater.WithLogger(srv.Logger()),
+		repeater.WithLogMessage("try to connect to database"),
+	); err != nil {
 		srv.Logger().Errorf("unable to connect to database: %v\n", err)
 		return
 	}

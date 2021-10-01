@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/Mikhalevich/filesharing v0.0.0-20210930202206-41017227d2c8
+	github.com/Mikhalevich/repeater v0.0.0-20211001095921-a918445112cf
 	github.com/ProtonMail/go-crypto v0.0.0-20210920160938-87db9fbc61c7 // indirect
 	github.com/asim/go-micro/v3 v3.6.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible

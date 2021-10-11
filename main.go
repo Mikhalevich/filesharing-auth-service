@@ -23,18 +23,18 @@ type params struct {
 
 func loadParams() (*params, error) {
 	var p params
-	p.ServiceName = os.Getenv("AS_SERVICE_NAME")
+	p.ServiceName = os.Getenv("FS_SERVICE_NAME")
 	if p.ServiceName == "" {
 		p.ServiceName = "auth.service"
 	}
 
-	p.DBConnectionString = os.Getenv("AS_DB_CONNECTION_STRING")
+	p.DBConnectionString = os.Getenv("FS_DB_CONNECTION_STRING")
 	if p.DBConnectionString == "" {
 		return nil, errors.New("databse connection string is missing, please specify AS_DB_CONNECTION_STRING environment variable")
 	}
 
 	p.TokenExpirePeriodInSec = 60 * 60 * 24
-	periodString := os.Getenv("AS_TOKEN_EXPIRE_PERIOD_SEC")
+	periodString := os.Getenv("FS_TOKEN_EXPIRE_PERIOD_SEC")
 	if periodString != "" {
 		period, err := strconv.Atoi(periodString)
 		if err != nil {

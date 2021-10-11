@@ -17,6 +17,10 @@ func NewPostgres(connectionStr string) (*Postgres, error) {
 		return nil, err
 	}
 
+	if err = pgDB.Ping(); err != nil {
+		return nil, err
+	}
+
 	return &Postgres{
 		db: pgDB,
 	}, nil

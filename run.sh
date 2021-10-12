@@ -1,5 +1,10 @@
 #!/usr/bin/env sh
 
-repeater goose -dir=db/migrations postgres="$FS_DB_CONNECTION_STRING" up
+set -xe
+
+export GOOSE_DRIVER=postgres
+export GOOSE_DBSTRING=$FS_DB_CONNECTION_STRING
+
+repeater -c=5 goose -dir=db/migrations up
 
 ./filesharing-auth-service

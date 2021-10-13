@@ -53,7 +53,11 @@ func main() {
 		return
 	}
 
-	srv := service.New(p.ServiceName)
+	srv, err := service.New(p.ServiceName)
+	if err != nil {
+		fmt.Printf("unable to create service: %v", err)
+		return
+	}
 
 	srv.Logger().Infof("running auth service with params: %v\n", p)
 

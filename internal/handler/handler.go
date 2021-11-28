@@ -9,9 +9,9 @@ import (
 
 	"github.com/Mikhalevich/filesharing-auth-service/internal/db"
 	"github.com/Mikhalevich/filesharing-auth-service/pkg/token"
-	"github.com/Mikhalevich/filesharing/httpcode"
-	"github.com/Mikhalevich/filesharing/proto/auth"
-	"github.com/Mikhalevich/filesharing/proto/types"
+	"github.com/Mikhalevich/filesharing/pkg/httpcode"
+	"github.com/Mikhalevich/filesharing/pkg/proto/auth"
+	"github.com/Mikhalevich/filesharing/pkg/proto/types"
 )
 
 type storager interface {

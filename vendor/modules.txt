@@ -1,12 +1,12 @@
 # github.com/Microsoft/go-winio v0.5.0
 github.com/Microsoft/go-winio
 github.com/Microsoft/go-winio/pkg/guid
-# github.com/Mikhalevich/filesharing v0.0.0-20211013103003-f3599e606d48
+# github.com/Mikhalevich/filesharing v0.0.0-20211127203421-97a4175b1cc5
 ## explicit
-github.com/Mikhalevich/filesharing/httpcode
-github.com/Mikhalevich/filesharing/proto/auth
-github.com/Mikhalevich/filesharing/proto/types
-github.com/Mikhalevich/filesharing/service
+github.com/Mikhalevich/filesharing/pkg/httpcode
+github.com/Mikhalevich/filesharing/pkg/proto/auth
+github.com/Mikhalevich/filesharing/pkg/proto/types
+github.com/Mikhalevich/filesharing/pkg/service
 # github.com/Mikhalevich/repeater v0.0.0-20211001095921-a918445112cf
 ## explicit
 github.com/Mikhalevich/repeater
@@ -178,6 +178,8 @@ github.com/kevinburke/ssh_config
 github.com/lib/pq
 github.com/lib/pq/oid
 github.com/lib/pq/scram
+# github.com/magefile/mage v1.9.0
+github.com/magefile/mage/mg
 # github.com/micro/cli/v2 v2.1.2
 github.com/micro/cli/v2
 # github.com/miekg/dns v1.1.43
@@ -204,6 +206,8 @@ github.com/sergi/go-diff/diffmatchpatch
 github.com/sirupsen/logrus
 # github.com/xanzy/ssh-agent v0.3.1
 github.com/xanzy/ssh-agent
+# go.elastic.co/ecslogrus v1.0.0
+go.elastic.co/ecslogrus
 # golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 ## explicit
 golang.org/x/crypto/bcrypt

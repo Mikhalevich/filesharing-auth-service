@@ -5,7 +5,7 @@ package auth
 
 import (
 	fmt "fmt"
-	_ "github.com/Mikhalevich/filesharing/proto/types"
+	_ "github.com/Mikhalevich/filesharing/pkg/proto/types"
 	proto "google.golang.org/protobuf/proto"
 	math "math"
 )

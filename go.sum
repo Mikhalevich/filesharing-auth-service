@@ -52,8 +52,8 @@ github.com/Mikhalevich/filesharing v0.0.0-20210713200342-691eaedbbeeb/go.mod h1:
 github.com/Mikhalevich/filesharing v0.0.0-20210713210515-73c0df3e69ff/go.mod h1:OvZFiycI7AXqB8z7bmnfdT7BI+LWBNb82u+O/CTAzpQ=
 github.com/Mikhalevich/filesharing v0.0.0-20210823124302-9815d8d1761c/go.mod h1:vwZNOF+g9P96teZKClz7MLrj1M+5oP/fzpzSGdcESSY=
 github.com/Mikhalevich/filesharing v0.0.0-20210823194614-91f994d1f2d9/go.mod h1:n5r3RoaOf0VAeRZD5Fz1Y5qaGTMoZubwj2PKxThXBY8=
-github.com/Mikhalevich/filesharing v0.0.0-20211013103003-f3599e606d48 h1:BSr8ulUvIks5a52RU0RQ96997UuFhwgM2rAmWKw8glg=
-github.com/Mikhalevich/filesharing v0.0.0-20211013103003-f3599e606d48/go.mod h1:plNE8pE3sIEm76nlCzGL2GILBvzjMmorsDKuiZvenXU=
+github.com/Mikhalevich/filesharing v0.0.0-20211127203421-97a4175b1cc5 h1:Kb5irVRSsbwPls2DB2bPTXOYaiLNHshE1RUhqUBRCp4=
+github.com/Mikhalevich/filesharing v0.0.0-20211127203421-97a4175b1cc5/go.mod h1:8BwDtc6krmA2IzgqseP3T5mFt/9V6cYEZhdZcCRNp+w=
 github.com/Mikhalevich/filesharing-auth-service v0.0.0-20210713170333-b9322ac05455/go.mod h1:ap44UWKjGuBvSPXkR37bd3dbBCR9UtRi2aDygV94KZ0=
 github.com/Mikhalevich/filesharing-auth-service v0.0.0-20210713200756-ad899200b5e7/go.mod h1:DNF02bXuiThIt0StUx1KANsUdWbKGVqmYExFbwbkZAs=
 github.com/Mikhalevich/filesharing-auth-service v0.0.0-20210820132202-552026a6981e/go.mod h1:z/JLjelIkd1Mqd0k3xb1gJfWr1ZgyUkTd8hTm4QscyQ=
@@ -350,6 +350,8 @@ github.com/liquidweb/go-lwApi v0.0.0-20190605172801-52a4864d2738/go.mod h1:0sYF9
 github.com/liquidweb/go-lwApi v0.0.5/go.mod h1:0sYF9rMXb0vlG+4SzdiGMXHheCZxjguMq+Zb4S2BfBs=
 github.com/liquidweb/liquidweb-cli v0.6.9/go.mod h1:cE1uvQ+x24NGUL75D0QagOFCG8Wdvmwu8aL9TLmA/eQ=
 github.com/liquidweb/liquidweb-go v1.6.3/go.mod h1:SuXXp+thr28LnjEw18AYtWwIbWMHSUiajPQs8T9c/Rc=
+github.com/magefile/mage v1.9.0 h1:t3AU2wNwehMCW97vuqQLtw6puppWXHO+O2MHo5a50XE=
+github.com/magefile/mage v1.9.0/go.mod h1:z5UZb/iS3GoOSn0JgWuiw7dxlurVYTu+/jHXqQg881A=
 github.com/magiconair/properties v1.8.1/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czPbwD3XqdrwzmxQ=
 github.com/magiconair/properties v1.8.4/go.mod h1:y3VJvCyxH9uVvJTWEGAELF3aiYNyPKd5NZ3oSwXrF60=
 github.com/matryer/is v1.2.0 h1:92UTHpy8CDwaJ08GqLDzhhuixiBUUD1p3AU6PHddz4A=
@@ -518,6 +520,7 @@ github.com/stretchr/objx v0.3.0/go.mod h1:qt09Ya8vawLte6SNmTgCsAVtYtaKzEcn8ATUoH
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
+github.com/stretchr/testify v1.5.0/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/stretchr/testify v1.5.1/go.mod h1:5W2xD1RspED5o8YsWQXVCued0rvSQ+mT+I5cxcmMvtA=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
@@ -543,6 +546,8 @@ github.com/xeipuuv/gojsonschema v1.2.0/go.mod h1:anYRn/JVcOK2ZgGU+IjEV4nwlhoK5sQ
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
+go.elastic.co/ecslogrus v1.0.0 h1:o1qvcCNaq+eyH804AuK6OOiUupLIXVDfYjDtSLPwukM=
+go.elastic.co/ecslogrus v1.0.0/go.mod h1:vMdpljurPbwu+iFmNc/HSWCkn1Fu/dYde1o/adaEczo=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.opencensus.io v0.20.1/go.mod h1:6WKK9ahsWS3RSO+PY9ZHZUfv2irvY6gN279GOPZjmmk=
 go.opencensus.io v0.20.2/go.mod h1:6WKK9ahsWS3RSO+PY9ZHZUfv2irvY6gN279GOPZjmmk=

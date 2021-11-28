@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package types;
 
-option go_package = "github.com/Mikhalevich/filesharing/proto/types";
+option go_package = "github.com/Mikhalevich/filesharing/pkg/proto/types";
 
 message User {
     int64 id = 1;

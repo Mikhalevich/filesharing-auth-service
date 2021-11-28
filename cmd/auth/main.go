@@ -12,8 +12,8 @@ import (
 	"github.com/Mikhalevich/filesharing-auth-service/internal/db"
 	"github.com/Mikhalevich/filesharing-auth-service/internal/handler"
 	"github.com/Mikhalevich/filesharing-auth-service/pkg/token"
-	"github.com/Mikhalevich/filesharing/proto/auth"
-	"github.com/Mikhalevich/filesharing/service"
+	"github.com/Mikhalevich/filesharing/pkg/proto/auth"
+	"github.com/Mikhalevich/filesharing/pkg/service"
 	"github.com/Mikhalevich/repeater"
 )
 

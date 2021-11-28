@@ -61,8 +61,6 @@ func main() {
 		return
 	}
 
-	srv.Logger().Infof("running auth service with params: %v\n", p)
-
 	var storage *db.Postgres
 	if err := repeater.Do(
 		func() error {
@@ -73,7 +71,7 @@ func main() {
 		repeater.WithLogger(srv.Logger()),
 		repeater.WithLogMessage("try to connect to database"),
 	); err != nil {
-		srv.Logger().Errorf("unable to connect to database: %v\n", err)
+		srv.Logger().WithError(err).Error("unable to connect to database")
 		return
 	}
 	defer storage.Close()
@@ -89,8 +87,13 @@ func main() {
 		}
 		return nil
 	}); err != nil {
+		srv.Logger().WithError(err).Error("failed to register handler")
 		return
 	}
+
+	srv.Logger().WithFields(map[string]interface{}{
+		"params": p,
+	}).Info("service running")
 
 	srv.Run()
 }

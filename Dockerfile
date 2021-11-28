@@ -11,7 +11,7 @@ RUN GOOS=linux GOARCH=amd64 go get -u github.com/Mikhalevich/repeater/cmd/repeat
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod=vendor -a -installsuffix cgo -ldflags="-w -s" -o /go/bin/filesharing-auth-service
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod=vendor -a -installsuffix cgo -ldflags="-w -s" -o /go/bin/filesharing-auth-service ./cmd/auth/main.go
 
 FROM alpine:latest
 
@@ -20,6 +20,6 @@ COPY --from=builder /go/bin/filesharing-auth-service /app/filesharing-auth-servi
 COPY --from=builder /go/bin/repeater /usr/local/bin/repeater
 COPY --from=builder /go/bin/goose /usr/local/bin/goose
 COPY --from=builder /app/docker/ /app/
-COPY --from=builder /app/script/run.sh /app/script/run.sh
+COPY --from=builder /app/scripts/run.sh /app/scripts/run.sh
 
-ENTRYPOINT ["./script/run.sh"]
+ENTRYPOINT ["./scripts/run.sh"]

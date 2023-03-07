@@ -8,5 +8,5 @@ require (
 	github.com/asim/go-micro/v3 v3.6.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/lib/pq v1.3.0
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
+	golang.org/x/crypto v0.1.0
 )
